@@ -13,7 +13,12 @@ export function useScanSocket(scanId, { onProgress, onComplete, onFailed } = {})
 
   useEffect(() => {
     if (!scanId) return;
-    const socket = io(SOCKET_URL, { transports: ["websocket"] });
+    // Allow the default polling transport as well as WebSocket. WebSocket-only
+    // connections fail silently behind proxies or networks that don't allow the
+    // upgrade, which would leave the scan view with no live updates at all.
+    // Socket.IO starts on polling and transparently upgrades to WebSocket when
+    // it can, so live progress still works everywhere.
+    const socket = io(SOCKET_URL, { transports: ["polling", "websocket"] });
     socketRef.current = socket;
 
     socket.emit("join_scan", scanId);

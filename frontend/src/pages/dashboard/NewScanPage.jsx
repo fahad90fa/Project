@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiRadio, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import api from "../../api/axios.js";
 import { useScanSocket } from "../../hooks/useScanSocket.js";
@@ -28,6 +28,44 @@ export default function NewScanPage() {
       setError(event.error);
     },
   });
+
+  // REST polling fallback for the terminal scan state.
+  //
+  // The scan runs on the server as soon as POST /scans returns, but the socket
+  // only connects and joins the scan's room after this component re-renders.
+  // Socket.IO does not replay room events to a client that joins late, so a
+  // fast scan can finish before we're listening and the "scan:complete" event
+  // is missed — leaving the view stuck on "Scanning…" even though the scan
+  // succeeded. Polling the scan record guarantees we always converge on the
+  // final status (and recovers from any dropped socket event or lost
+  // connection). Live per-port progress still comes from the socket above.
+  useEffect(() => {
+    if (status !== "running" || !scanId) return;
+
+    let cancelled = false;
+    const reconcile = async () => {
+      try {
+        const { data } = await api.get(`/scans/${scanId}`);
+        if (cancelled || !data?.scan) return;
+        if (data.scan.status === "completed") {
+          setStatus("completed");
+          setSummary(data.scan.summary);
+        } else if (data.scan.status === "failed") {
+          setStatus("failed");
+          setError(data.scan.error || "Scan failed.");
+        }
+      } catch {
+        // transient network/API error — keep polling until a terminal state.
+      }
+    };
+
+    reconcile();
+    const interval = setInterval(reconcile, 2500);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [status, scanId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
