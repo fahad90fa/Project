@@ -25,7 +25,14 @@ export default function RegisterPage() {
       await register(form);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Unable to create your account.");
+      const data = err.response?.data;
+      const message =
+        data?.message ||
+        data?.errors?.[0]?.msg ||
+        (err.response
+          ? "Unable to create your account."
+          : "Cannot reach the server. Make sure the backend is running on port 5000.");
+      setError(message);
     } finally {
       setLoading(false);
     }

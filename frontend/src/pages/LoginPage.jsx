@@ -21,7 +21,14 @@ export default function LoginPage() {
       await login(form.email, form.password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Unable to sign in. Check your credentials.");
+      const data = err.response?.data;
+      const message =
+        data?.message ||
+        data?.errors?.[0]?.msg ||
+        (err.response
+          ? "Unable to sign in. Check your credentials."
+          : "Cannot reach the server. Make sure the backend is running on port 5000.");
+      setError(message);
     } finally {
       setLoading(false);
     }
