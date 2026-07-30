@@ -1,0 +1,36 @@
+.reports-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.reports-generate { display: flex; flex-direction: column; gap: 6px; }
+.reports-generate h3, .reports-list h3 { font-size: 15px; margin-bottom: 14px; }
+.reports-generate label { font-size: 13px; color: var(--text-muted); margin-top: 10px; margin-bottom: 4px; }
+.reports-generate select {
+  background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  padding: 10px 12px; color: var(--text); font-family: var(--font-body); font-size: 13.5px;
+}
+
+.reports-format-toggle { display: flex; gap: 8px; }
+.reports-format-toggle .btn { flex: 1; justify-content: center; padding: 10px; }
+.reports-format-toggle .is-selected { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+.reports-generate .btn-primary { margin-top: 18px; justify-content: center; }
+
+.reports-list { min-height: 320px; }
+
+.reports-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong); background: transparent; color: var(--text-muted);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+.icon-btn--danger:hover { border-color: var(--risk-critical); color: var(--risk-critical); }
+
+@media (max-width: 900px) {
+  .reports-grid { grid-template-columns: 1fr; }
+}
